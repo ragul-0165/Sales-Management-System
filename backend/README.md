@@ -1,11 +1,25 @@
 # Sales Management System Backend
 
-Express + SQLite API powering the TruEstate retail dashboard. The server owns filtering, sorting, validation, and pagination so the UI stays quick and predictable. This README is written for interview review—clear, concise, and plagiarism-free.
+Express + SQLite API powering the retail sales dashboard. The server handles filtering, sorting, validation, and pagination to ensure the UI remains fast and responsive.
 
 ## Tech Stack
 - Node.js with Express 5
 - SQLite via `better-sqlite3`
-- CSV import utility for the provided dataset
+- CSV import utility for the dataset
+
+## Dataset
+
+The dataset used in this project is large (223MB) and is therefore **not stored in this Git repository**.
+
+### Download Instructions
+
+1. Download the dataset from: [Google Drive](https://drive.google.com/file/d/1tyD7O8rqGuJEZyBAYeVx6Sc-PUdfhrzj/view?usp=sharing)
+
+2. Create the following directory if it doesn't exist:
+   ```
+   backend/src/data/
+   ```
+3. Place the downloaded dataset file (e.g., `sales_data.csv`) in this directory
 
 ## Project Structure
 ```
@@ -29,20 +43,23 @@ backend/
 Prereqs: Node 18+ recommended.
 
 ```bash
+# 1. Install dependencies
 cd backend
 npm install
 
-# 1) Create table (idempotent)
+# 2. Create the database tables
 node src/db/schema.js
 
-# 2) Import the CSV into SQLite (rerun to refresh data)
+# 3. Import the dataset (make sure to place the CSV file in backend/src/data/ first)
 node src/db/importCSV.js
 
-# 3) Run the API
-npm run dev   # with nodemon
+# 4. Start the development server
+npm run dev   # with nodemon (auto-restarts on changes)
 # or
-npm start     # plain node
+npm start     # production mode
 ```
+
+> **Note:** The first time you run the import script, it will create an SQLite database file (`sales.db`) in the `backend` directory. This file is included in `.gitignore` as it contains the imported data.
 
 Server starts on `PORT` (default `4000`) and enables open CORS for local development.
 

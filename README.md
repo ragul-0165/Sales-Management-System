@@ -22,6 +22,21 @@ A full-stack application for analyzing and visualizing retail sales data, built 
 - SQLite with Better-SQLite3
 - RESTful API design
 
+## Dataset
+
+The dataset used in this project is large (223MB) and is therefore **not stored in this Git repository**.
+
+### Download Instructions
+
+1. Download the dataset from: [Google Drive](https://drive.google.com/file/d/1tyD7O8rqGuJEZyBAYeVx6Sc-PUdfhrzj/view?usp=sharing)
+
+2. Create the following directory if it doesn't exist:
+   ```
+   backend/src/data/
+   ```
+3. Place the downloaded dataset file in this directory
+4. The application will automatically import the data on first run
+
 ## Project Structure
 
 ```
