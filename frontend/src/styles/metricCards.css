@@ -1,0 +1,40 @@
+.metrics-container {
+    display: flex;
+    gap: 16px;
+
+  }
+  
+  .metric-card {
+    flex: 1;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  
+  .metric-label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .metric-icon {
+    color: #9ca3af;
+  }
+  
+  .metric-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: black;
+  }
+  
+  .metric-small {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    margin-left: 6px;
+  }
+  

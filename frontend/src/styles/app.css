@@ -1,0 +1,27 @@
+.layout-container {
+  overflow-x: hidden;
+}
+
+.top-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  margin-bottom: 12px;
+}
+
+.table-section {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  border-radius: 12px;
+  scroll-behavior: smooth;
+}
+
+.table-section::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-section::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+}

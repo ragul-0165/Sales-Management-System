@@ -1,0 +1,10 @@
+{
+    "ignore": [
+      "src/data/*"
+    ],
+    "watch": [
+      "src"
+    ],
+    "ext": "js,json"
+  }
+  

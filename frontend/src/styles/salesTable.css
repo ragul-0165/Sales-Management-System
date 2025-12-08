@@ -1,0 +1,110 @@
+.main {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-wrapper {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 10px 0 0;
+    display: inline-block;
+    min-width: max-content;
+}
+
+.sales-table {
+    border-collapse: collapse;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.sales-table thead {
+    background: #f8fafc;
+    font-weight: 500;
+}
+
+.sales-table th,
+.sales-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f1f1;
+    text-align: left;
+}
+
+.sales-table tbody td:nth-child(1),
+.sales-table tbody td:nth-child(2),
+.sales-table tbody td:nth-child(3),
+.sales-table tbody td:nth-child(4),
+.sales-table tbody td:nth-child(5),
+.sales-table tbody td:nth-child(6),
+.sales-table tbody td:nth-child(7),
+.sales-table tbody td:nth-child(8) {
+    color: #515162;
+    font-weight: 500;
+}
+
+.sales-table tbody td:nth-child(9),
+.sales-table tbody td:nth-child(10),
+.sales-table tbody td:nth-child(11),
+.sales-table tbody td:nth-child(12),
+.sales-table tbody td:nth-child(13) {
+    color: #6c7280;
+}
+
+.phone-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.copy-btn {
+    border: none;
+    background: #f1f2f4;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sales-table tbody tr:hover {
+    background: #f6f8fa;
+}
+
+.pagination-bar {
+    display: flex;
+    gap: 6px;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+}
+
+.pg-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background: white;
+    cursor: pointer;
+    min-width: 32px;
+}
+
+.pg-btn:hover:not(:disabled) {
+    background: #f3f4f6;
+}
+
+.pg-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pg-btn.active {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+    font-weight: 600;
+}
