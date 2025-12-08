@@ -43,6 +43,3 @@ coverage/
 temp/
 tmp/
 
-backend/src/data/sales_data.csv
-*.csv
-
