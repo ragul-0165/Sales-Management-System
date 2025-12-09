@@ -1,5 +1,4 @@
 import "../styles/salesTable.css";
-
 import { FiCopy } from "react-icons/fi";
 
 export default function SalesTable({
@@ -31,8 +30,34 @@ export default function SalesTable({
   }
 
   function copyToClipboard(text) {
-    navigator.clipboard.writeText(text);
-    alert("Copied: " + text);
+    if (!text) return;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          alert("Phone number copied");
+        })
+        .catch(() => {
+          alert("Unable to copy");
+        });
+    } else {
+      
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        alert("Phone number copied");
+      } catch (e) {
+        alert("Unable to copy");
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
   }
 
   if (loading) {
@@ -43,7 +68,7 @@ export default function SalesTable({
     );
   }
 
-  if (!data.length) {
+  if (!data || !data.length) {
     return (
       <div className="table-container">
         <div className="placeholder">No results found</div>
@@ -53,81 +78,82 @@ export default function SalesTable({
 
   return (
     <div className="table-container">
-      
-      {/* SCROLLABLE WRAPPER */}
+      {/* scrollable area */}
       <div className="table-wrapper">
         <table className="sales-table">
           <thead>
             <tr>
-              <th>Transaction ID</th>
-
               <th onClick={() => handleSort("date")}>
                 {sortLabel("date", "Date")}
               </th>
-
               <th>Customer ID</th>
-
               <th onClick={() => handleSort("customer_name")}>
                 {sortLabel("customer_name", "Customer name")}
               </th>
-
               <th>Phone Number</th>
-
               <th>Gender</th>
-
               <th onClick={() => handleSort("age")}>
                 {sortLabel("age", "Age")}
               </th>
-
               <th>Product Category</th>
-
               <th onClick={() => handleSort("quantity")}>
                 {sortLabel("quantity", "Quantity")}
               </th>
-
-              <th>Final Amount</th>
-
+              <th>Total Amount</th>
               <th>Customer region</th>
-
               <th>Product ID</th>
-
               <th>Employee name</th>
             </tr>
           </thead>
 
           <tbody>
             {data.map((row) => {
-              const phoneDisplay = `+91 ${row.phone_number}`;
+              const formattedDate = row.date
+                ? new Date(row.date).toISOString().split("T")[0]
+                : "";
+
+              const formattedAmount = row.final_amount
+                ? `₹ ${Number(row.final_amount).toLocaleString("en-IN")}`
+                : "₹ 0";
+
+              const phone = row.phone_number
+                ? `+91 ${row.phone_number}`
+                : "";
+
+              const productIdFormatted = row.product_id
+                ? `PROD${String(row.product_id)
+                    .replace(/\D/g, "")
+                    .padStart(5, "0")}`
+                : "";
 
               return (
-                <tr key={row.transaction_id}>
-                  <td>{row.transaction_id}</td>
-                  <td>{row.date}</td>
-                  <td>{row.customer_id}</td>
-                  <td>{row.customer_name}</td>
+                <tr key={row._id || row.transaction_id}>
+                  <td className="col-date">{formattedDate}</td>
+                  <td className="col-customer-id">{row.customer_id?.replace(/[-–]/g, "").trim()}</td>
+                  <td className="col-customer-name">{row.customer_name}</td>
 
-                  {/* PHONE + COPY ICON */}
-                  <td className="phone-cell">
-                    <span className="phone-text">{phoneDisplay}</span>
-                    <button
-                      className="copy-btn"
-                      onClick={() => copyToClipboard(phoneDisplay)}
-                      title="Copy phone number"
-                    >
-                      <FiCopy size={13} />
-                    </button>
+                  <td className="phone-cell col-phone">
+                    <span className="phone-text">{phone}</span>
+                    {phone && (
+                      <button
+                        className="copy-btn"
+                        onClick={() => copyToClipboard(phone)}
+                        title="Copy phone number"
+                        type="button"
+                      >
+                        <FiCopy size={12} />
+                      </button>
+                    )}
                   </td>
 
-                  <td>{row.gender}</td>
-                  <td>{row.age}</td>
-                  <td>{row.product_category}</td>
-                  <td>{row.quantity}</td>
-                  <td>
-                    ₹{Number(row.final_amount || 0).toLocaleString("en-IN")}
-                  </td>
-                  <td>{row.customer_region}</td>
-                  <td>{row.product_id}</td>
-                  <td>{row.employee_name}</td>
+                  <td className="col-gender">{row.gender}</td>
+                  <td className="col-age">{row.age}</td>
+                  <td className="col-category">{row.product_category}</td>
+                  <td className="col-qty num">{row.quantity}</td>
+                  <td className="col-amount num">{formattedAmount}</td>
+                  <td className="col-region">{row.customer_region}</td>
+                  <td className="col-product-id">{productIdFormatted}</td>
+                  <td className="col-employee">{row.employee_name}</td>
                 </tr>
               );
             })}
@@ -135,19 +161,17 @@ export default function SalesTable({
         </table>
       </div>
 
-      {/* PAGINATION OUTSIDE SCROLL */}
+      {/* pagination bar fixed outside scroll */}
       <div className="pagination-bar">
-
-        {/* Prev Button */}
         <button
           className="pg-btn"
           disabled={filters.page <= 1}
           onClick={() => goToPage(filters.page - 1)}
+          type="button"
         >
           Previous
         </button>
 
-        {/* Page Numbers */}
         {(() => {
           const maxButtons = 6;
           const pages = [];
@@ -169,6 +193,7 @@ export default function SalesTable({
                 key={i}
                 className={`pg-btn ${i === current ? "active" : ""}`}
                 onClick={() => goToPage(i)}
+                type="button"
               >
                 {i}
               </button>
@@ -178,16 +203,15 @@ export default function SalesTable({
           return pages;
         })()}
 
-        {/* Next Button */}
         <button
           className="pg-btn"
           disabled={filters.page >= totalPages}
           onClick={() => goToPage(filters.page + 1)}
+          type="button"
         >
           Next
         </button>
       </div>
-
     </div>
   );
 }

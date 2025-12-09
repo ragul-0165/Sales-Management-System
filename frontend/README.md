@@ -1,10 +1,10 @@
-# Sales Managaement System Dashboard (Frontend)
+# Sales Management System Dashboard (Frontend)
 
-React + Vite single-page app for browsing and filtering the retail sales dataset served by the backend API. Written to be interview-ready: concise, clear, and plagiarism-free.
+React + Vite single-page app for browsing and filtering the retail sales dataset served by the backend API (MongoDB). Written for an interview submission: concise, clear, and plagiarism-free.
 
 ## Tech Stack
 - React 19 with Vite
-- Vanilla CSS modules for layout and components
+- Plain CSS stylesheets (no Tailwind / no UI framework)
 - Icons from `lucide-react` and `react-icons`
 
 ## App Overview
@@ -13,7 +13,7 @@ React + Vite single-page app for browsing and filtering the retail sales dataset
 - Paginated sales table that reflects active filters and sort selection.
 - Responsive design that works across different screen sizes.
 - Graceful error handling with user feedback for failed API requests.
-- All data comes from the backend endpoint at `http://localhost:4000/api/sales` (see `src/services/api.js`).
+- All data comes from the backend endpoint at `http://localhost:4000/api/sales` (configure `VITE_API_URL`).
 
 ## Project Structure
 ```
@@ -22,7 +22,7 @@ frontend/
     main.jsx              # React entry
     App.jsx               # Page composition + data fetch lifecycle
     services/api.js       # Fetch helper for sales endpoint
-    assets/               # Static assets (for logo)
+    assets/               # Static assets (logo)
     components/
       FilterBar.jsx       # Controls for filters/sort
       MetricCards.jsx     # Summary stats
@@ -56,3 +56,5 @@ If your backend runs on a different host/port, update `API_URL` in `src/services
 - `npm run build` — production bundle
 - `npm run preview` — preview the built bundle
 - `npm run lint` — run ESLint with the project rules
+
+This frontend is optimized for clean filtering, fast lookups, and accurate representation of the dataset, aligned with the assignment’s Figma design.

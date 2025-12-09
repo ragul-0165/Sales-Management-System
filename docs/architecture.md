@@ -2,7 +2,7 @@
 
 ## System Overview
 
-The Retail Sales Dashboard is a full-stack application consisting of a React frontend and a Node.js backend with SQLite database. The application provides a comprehensive interface for analyzing and visualizing retail sales data with filtering, sorting, and pagination capabilities.
+Full-stack application: React frontend + Node.js backend + MongoDB. Provides filtering, sorting, and pagination over retail sales data exposed via a REST API.
 
 ### Architecture Diagram
 
@@ -10,10 +10,10 @@ The Retail Sales Dashboard is a full-stack application consisting of a React fro
 [Browser]
     ↓
 [React Frontend]
-    ↓ REST API
-[Node.js Backend]
+    ↓ REST API (JSON)
+[Node.js Backend (Express)]
     ↓
-[SQLite DB]
+[MongoDB (sales collection)]
 ```
 
 ## Backend Architecture
@@ -21,26 +21,20 @@ The Retail Sales Dashboard is a full-stack application consisting of a React fro
 ### Technology Stack
 - **Runtime**: Node.js
 - **Framework**: Express.js
-- **Database**: SQLite with Better-SQLite3
-- **Data Import**: CSV to SQLite conversion
+- **Database**: MongoDB with Mongoose
+- **Data Import**: CSV → MongoDB (via MongoDB Compass CSV Import)
 
 ### Directory Structure
 ```
 backend/
 ├── src/
 │   ├── controllers/    # Request handlers
-│   │   └── salesController.js
-│   ├── db/            # Database configuration and schema
-│   │   ├── connection.js
-│   │   ├── importCSV.js
-│   │   └── schema.js
-│   ├── routes/        # API routes
-│   │   └── salesRoutes.js
-│   ├── services/      # Business logic
-│   │   └── salesService.js
-│   ├── utils/         # Helper functions
-│   │   └── helpers.js
-│   └── index.js       # Application entry point
+│   ├── db/             # Connection helper
+│   ├── models/         # Mongoose schemas (Sale)
+│   ├── routes/         # API routes
+│   ├── services/       # Business logic (filters/pagination)
+│   ├── utils/          # Helper functions
+│   └── index.js        # Application entry point
 └── package.json
 ```
 
@@ -48,45 +42,37 @@ backend/
 1. **API Layer**
    - RESTful endpoints for sales data
    - Request validation and error handling
-   - CORS and security middleware
+   - CORS for local dev
 
 2. **Service Layer**
-   - Business logic for data processing
-   - Database operations
-   - Data transformation
+   - Builds MongoDB filters from query params
+   - Sorting and server-side pagination
 
 3. **Data Layer**
-   - SQLite database for data persistence
-   - Schema definition for sales data
-   - CSV import functionality
+   - MongoDB for persistence
+   - Mongoose models/indexed fields
+   - CSV import via MongoDB Compass (CSV Import)
 
 ## Frontend Architecture
 
 ### Technology Stack
 - **Framework**: React 19
 - **Build Tool**: Vite
-- **Styling**: CSS Modules
+- **Styling**: Plain CSS stylesheets (no Tailwind/UI framework)
 - **Icons**: Lucide Icons & React Icons
 
 ### Directory Structure
 ```
 frontend/
 ├── src/
-│   ├── components/    # Reusable UI components
-│   │   ├── FilterBar.jsx
-│   │   ├── Layout.jsx
-│   │   ├── MetricCards.jsx
-│   │   └── SalesTable.jsx
-│   ├── services/     # API service layer
-│   │   └── api.js
-│   ├── styles/       # Component styles
-│   │   ├── app.css
-│   │   ├── filterBar.css
-│   │   ├── layout.css
-│   │   ├── metricCards.css
-│   │   └── salesTable.css
-│   ├── App.jsx       # Main application component
-│   └── main.jsx      # Application entry point
+│   ├── components/    # UI components
+│   ├── services/      # API client
+│   ├── styles/        # CSS modules
+│   ├── hooks/         # Custom hooks (placeholder)
+│   ├── utils/         # Utilities (placeholder)
+│   ├── assets/        # Static assets (logo)
+│   ├── App.jsx        # Main app
+│   └── main.jsx       # Entry point
 └── package.json
 ```
 
@@ -113,14 +99,14 @@ frontend/
 ## Data Flow
 
 1. **Data Loading**
-   - Backend loads data from CSV into SQLite on startup
-   - Frontend fetches data via REST API
+   - CSV imported into MongoDB (`sales` collection)
+   - Frontend fetches via REST API
 
 2. **User Interaction**
-   - User applies filters/sorting
-   - Frontend sends request to backend with query parameters
-   - Backend processes request and returns filtered/sorted data
-   - Frontend updates UI with new data
+   - Filters/sort captured in UI
+   - Frontend sends query params
+   - Backend builds Mongo filters and paginated results
+   - Frontend renders updated data
 
 3. **State Management**
    - Component-level state for UI controls
@@ -131,24 +117,21 @@ frontend/
 
 - Input validation on both client and server
 - CORS configuration for API access control
-- SQL injection prevention using parameterized queries
+- Sanitized query building with Mongoose
 - Error handling and logging
 
 ## Performance Optimizations
 
-- Server-side pagination
-- Efficient database queries with proper indexing
+- Server-side pagination and indexed fields
+- Efficient Mongo queries
 - Client-side caching of API responses
-- Lazy loading of components (if implemented)
 - Optimized asset loading with Vite
 
 ## Deployment
 
-The application is designed to be easily deployable with minimal configuration:
-
-1. **Backend**: Requires Node.js environment
-2. **Frontend**: Static files served by any web server
-3. **Database**: SQLite (file-based, no separate database server needed)
+1. Backend: Node.js with `MONGODB_URI` configured
+2. Frontend: Static build from Vite
+3. Database: MongoDB (Atlas or self-hosted)
 
 ## Future Improvements
 
@@ -156,5 +139,4 @@ The application is designed to be easily deployable with minimal configuration:
 - Implement data export functionality
 - Add more advanced visualizations
 - Add unit and integration tests
-- Implement proper logging and mon
-itoring
+- Implement proper logging and monitoring

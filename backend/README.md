@@ -1,67 +1,65 @@
 # Sales Management System Backend
 
-Express + SQLite API powering the retail sales dashboard. The server handles filtering, sorting, validation, and pagination to ensure the UI remains fast and responsive.
+Express + MongoDB API powering the retail sales dashboard. Handles filtering, sorting, validation, and pagination so the UI stays fast.
 
 ## Tech Stack
-- Node.js with Express 5
-- SQLite via `better-sqlite3`
-- CSV import utility for the dataset
+- Node.js with Express 4/5
+- MongoDB with Mongoose
+- CSV import (mongoimport) for the dataset
 
-## Dataset
+## Dataset (large: ~223MB)
+- Not stored in the repo.
+- Download: [Google Drive](https://drive.google.com/file/d/1dhlOQvsxCTJWpN4MRKRCopzRG_FxBMtp/view?usp=sharing)
+- Create folder if missing: `backend/src/data/`
+- Place `sales_data.csv` there.
 
-The dataset used in this project is large (223MB) and is therefore **not stored in this Git repository**.
+### Importing the Dataset into MongoDB
 
-### Download Instructions
-
-1. Download the dataset from: [Google Drive](https://drive.google.com/file/d/1tyD7O8rqGuJEZyBAYeVx6Sc-PUdfhrzj/view?usp=sharing)
-
-2. Create the following directory if it doesn't exist:
-   ```
-   backend/src/data/
-   ```
-3. Place the downloaded dataset file (e.g., `sales_data.csv`) in this directory
+Imported using **MongoDB Compass**:
+1) Open MongoDB Compass  
+2) Select your database (e.g., `retaildb`)  
+3) Click **Collection → Add Data → Import CSV**  
+4) Choose `sales_data.csv`  
+5) Import into collection: **sales**
 
 ## Project Structure
 ```
 backend/
   src/
-    index.js            # App entrypoint (CORS, JSON, routes, health)
-    routes/salesRoutes.js
-    controllers/salesController.js
-    services/salesService.js   # Filtering, sorting, pagination
-    db/
-      connection.js     # SQLite connection
-      schema.js         # Table definition
-      importCSV.js      # Seeds DB from data/sales_data.csv
-      sales.db          # Generated DB
-    data/sales_data.csv # Provided dataset
-  package.json
+    index.js              # App entry (env, CORS, JSON, Mongo connect, routes)
+    routes/salesRoutes.js # API routes
+    controllers/          # Request handlers
+    services/             # Filters + pagination using Mongoose
+    models/               # Mongoose models (Sale)
+    utils/                # Helpers
+    db/connection.js      # Mongo connection helper (optional)
+    data/                 # CSV source (downloaded, not versioned)
+  package.json            # scripts: dev, start
   nodemon.json
 ```
 
 ## Quick Start
-Prereqs: Node 18+ recommended.
+Prereqs: Node 18+ and a MongoDB connection string.
 
 ```bash
-# 1. Install dependencies
+# 1) Install
 cd backend
 npm install
 
-# 2. Create the database tables
-node src/db/schema.js
+# 2) Configure env
+echo "PORT=4000
+MONGODB_URI=<your-mongodb-uri>" > .env
 
-# 3. Import the dataset (make sure to place the CSV file in backend/src/data/ first)
-node src/db/importCSV.js
+# 3) Import data (after placing CSV in src/data/)
+mongoimport --uri "<your MONGODB_URI>" --collection sales --type csv --headerline --file src/data/sales_data.csv
 
-# 4. Start the development server
-npm run dev   # with nodemon (auto-restarts on changes)
+# 4) Run API
+npm run dev   # nodemon
 # or
-npm start     # production mode
+npm start     # node
 ```
 
-> **Note:** The first time you run the import script, it will create an SQLite database file (`sales.db`) in the `backend` directory. This file is included in `.gitignore` as it contains the imported data.
-
-Server starts on `PORT` (default `4000`) and enables open CORS for local development.
+Server defaults to `PORT=4000` with open CORS for local development. Health check: `GET /health`.
 
 ## API
 ### Health
@@ -85,6 +83,7 @@ Returns a page of filtered and sorted sales records with metadata.
   - `totalCount`, `totalPages`: numbers
 
 ## Notes
-- Database file lives at `src/db/sales.db`; delete or re-import to reset data.
 - Filtering, sorting, and pagination are handled in `src/services/salesService.js`.
 - CORS is open (`*`) for easy frontend integration during review.
+- Page size is fixed at 10.
+- You can inspect the imported data using MongoDB Compass (connect with your `MONGODB_URI`).

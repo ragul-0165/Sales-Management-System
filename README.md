@@ -1,6 +1,6 @@
 # Sales Management System Dashboard
 
-A full-stack application for analyzing and visualizing retail sales data, built with React and Node.js.
+A full-stack application for analyzing and visualizing retail sales data, built with React, Node.js, and MongoDB.
 
 ## Features
 
@@ -12,14 +12,14 @@ A full-stack application for analyzing and visualizing retail sales data, built 
 
 ## Technology Stack
 
-**Frontend:**
+**Frontend**
 - React 19 with Vite
-- Vanilla CSS Modules for styling
+- Plain CSS stylesheets (no Tailwind / UI framework)
 - React Icons and Lucide Icons
 
-**Backend:**
-- Node.js with Express.js
-- SQLite with Better-SQLite3
+**Backend**
+- Node.js with Express 5
+- MongoDB with Mongoose
 - RESTful API design
 
 ## Dataset
@@ -28,14 +28,18 @@ The dataset used in this project is large (223MB) and is therefore **not stored 
 
 ### Download Instructions
 
-1. Download the dataset from: [Google Drive](https://drive.google.com/file/d/1tyD7O8rqGuJEZyBAYeVx6Sc-PUdfhrzj/view?usp=sharing)
+1. Download the dataset from: [Google Drive](https://drive.google.com/file/d/1dhlOQvsxCTJWpN4MRKRCopzRG_FxBMtp/view?usp=sharing)
 
 2. Create the following directory if it doesn't exist:
    ```
    backend/src/data/
    ```
 3. Place the downloaded dataset file in this directory
-4. The application will automatically import the data on first run
+4. Import the CSV into MongoDB using **MongoDB Compass**:
+   1) Open Compass and select your database (e.g., `retaildb`)
+   2) **Collection → Add Data → Import CSV**
+   3) Choose `sales_data.csv`
+   4) Import into collection: **sales**
 
 ## Project Structure
 
@@ -43,25 +47,28 @@ The dataset used in this project is large (223MB) and is therefore **not stored 
 truestate-retail-app/
 ├── backend/           # Node.js API server
 │   ├── src/
-│   │   ├── controllers/  # Request handlers
-│   │   ├── db/          # Database configuration
-│   │   ├── routes/      # API endpoints
-│   │   ├── services/    # Business logic
-│   │   └── utils/       # Helper functions
+│   │   ├── controllers/   # Request handlers
+│   │   ├── models/        # Mongoose models
+│   │   ├── routes/        # API endpoints
+│   │   ├── services/      # Business logic
+│   │   ├── utils/         # Helper functions
+│   │   └── db/            # Mongo connection helper
+│   ├── src/data/          # CSV dataset (downloaded)
 │   └── package.json
 │
-├── frontend/          # React application
+├── frontend/           # React application
 │   ├── src/
-│   │   ├── components/  # UI components
-│   │   ├── hooks/      # Custom React hooks (with README)
-│   │   ├── services/   # API services
-│   │   ├── styles/     # CSS modules
-│   │   ├── utils/      # Utility functions (with README)
-│   │   ├── App.jsx     # Main component
-│   │   └── main.jsx    # Entry point
+│   │   ├── components/   # UI components
+│   │   ├── hooks/        # Custom React hooks (with README)
+│   │   ├── services/     # API services
+│   │   ├── styles/       # CSS stylesheets
+│   │   ├── utils/        # Utility functions (with README)
+│   │   ├── assets/       # Static assets (logo)
+│   │   ├── App.jsx       # Main component
+│   │   └── main.jsx      # Entry point
 │   └── package.json
 │
-└── docs/             # Project documentation
+└── docs/              # Project documentation
     └── architecture.md
 ```
 
@@ -108,16 +115,37 @@ truestate-retail-app/
 Create a `.env` file in the `backend` directory:
 ```
 PORT=4000
+MONGODB_URI=<your-mongodb-uri>
 NODE_ENV=development
 ```
 
-### Frontend
-Create a `.env` file in the `frontend` directory:
-```
-VITE_API_URL=http://localhost:4000/api
-```
 
-## Documentation
+### Frontend
+The frontend does **not** use environment variables.
+
+API URL is defined inside: `frontend/src/services/api.js`
+
+To modify the backend URL, edit:
+
+```js
+const API_URL = "http://localhost:4000/api/sales";
+```
+## Functional Overview (Search, Filters, Sorting, Pagination)
+
+### Search Implementation
+Full-text search over Customer Name and Phone Number using case-insensitive regex queries. Integrated with filters, sorting, and pagination.
+
+### Filter Implementation
+Multi-select filters for Region, Gender, Category, Tags, Payment Method. Includes numeric ranges (Age) and date range support. Filters can be combined and persist state.
+
+### Sorting Implementation
+Sorting supported for Date, Quantity, Customer Name in ASC/DESC. Sorting works alongside active filters and search queries.
+
+### Pagination Implementation
+Server-side pagination with fixed page size (10). Frontend supports Next/Previous navigation while preserving filter and search state.
+
+
+### Documentation
 
 For detailed architecture and implementation details, see the [documentation](./docs/architecture.md).
 
@@ -132,5 +160,4 @@ For detailed architecture and implementation details, see the [documentation](./
 - `npm run dev` - Start development server
 - `npm run build` - Create production build
 - `npm run preview` - Preview production build
-
 

@@ -3,108 +3,170 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-}
-
-.table-wrapper {
-    background: white;
+  }
+  
+  /* outer container (card) */
+  .table-container {
+    background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
-    padding: 10px 0 0;
-    display: inline-block;
-    min-width: max-content;
-}
-
-.sales-table {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  /* scrollable area for the table */
+  .table-wrapper {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 260px); /* keeps header and metrics visible */
+  }
+  
+  /* table base */
+  .sales-table {
+    width: 100%;
+    min-width: 1200px; /* ensures horizontal scroll on smaller screens */
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 12px;
     white-space: nowrap;
-}
-
-.sales-table thead {
+  }
+  
+  /* sticky header */
+  .sales-table thead {
+    background: #f8fafc;
+  }
+  
+  .sales-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     background: #f8fafc;
     font-weight: 500;
-}
-
-.sales-table th,
-.sales-table td {
-    padding: 10px 14px;
-    border-bottom: 1px solid #f1f1f1;
+  }
+  
+  /* cells */
+  .sales-table th,
+  .sales-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eef0f4;
     text-align: left;
-}
-
-.sales-table tbody td:nth-child(1),
-.sales-table tbody td:nth-child(2),
-.sales-table tbody td:nth-child(3),
-.sales-table tbody td:nth-child(4),
-.sales-table tbody td:nth-child(5),
-.sales-table tbody td:nth-child(6),
-.sales-table tbody td:nth-child(7),
-.sales-table tbody td:nth-child(8) {
-    color: #515162;
+  }
+  
+  /* bold / darker columns like Figma */
+  .sales-table tbody td.col-date,
+  .sales-table tbody td.col-customer-id,
+  .sales-table tbody td.col-customer-name,
+  .sales-table tbody td.col-phone,
+  .sales-table tbody td.col-gender,
+  .sales-table tbody td.col-age,
+  .sales-table tbody td.col-category {
+    color: #111827;
     font-weight: 500;
-}
-
-.sales-table tbody td:nth-child(9),
-.sales-table tbody td:nth-child(10),
-.sales-table tbody td:nth-child(11),
-.sales-table tbody td:nth-child(12),
-.sales-table tbody td:nth-child(13) {
-    color: #6c7280;
-}
-
-.phone-cell {
+  }
+  
+  .sales-table tbody td.col-qty,
+  .sales-table tbody td.col-amount,
+  .sales-table tbody td.col-region,
+  .sales-table tbody td.col-product-id,
+  .sales-table tbody td.col-employee {
+    color: #4b5563;
+    font-weight: 400;
+  }
+  
+  /* numeric alignment */
+  .num {
+    text-align: right;
+  }
+  
+  /* phone cell with copy button */
+  .phone-cell {
     display: flex;
     align-items: center;
     gap: 6px;
-}
-
-.copy-btn {
+  }
+  
+  .phone-text {
+    font-variant-numeric: tabular-nums;
+  }
+  
+  /* copy icon button */
+  .copy-btn {
     border: none;
-    background: #f1f2f4;
-    border-radius: 50%;
+    background: #f3f4f6;
+    border-radius: 999px;
     width: 22px;
     height: 22px;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-}
-
-.sales-table tbody tr:hover {
+    padding: 0;
+  }
+  
+  .copy-btn:hover {
+    background: #e5e7eb;
+  }
+  
+  /* row hover */
+  .sales-table tbody tr:hover {
     background: #f6f8fa;
-}
-
-.pagination-bar {
+  }
+  
+  /* empty / loading states */
+  .placeholder {
+    padding: 24px;
+    text-align: center;
+    color: #6b7280;
+  }
+  
+  /* pagination */
+  .pagination-bar {
     display: flex;
     gap: 6px;
-    padding: 16px;
+    padding: 12px 16px;
     justify-content: center;
     align-items: center;
-    background: white;
+    background: #ffffff;
     border-top: 1px solid #e5e7eb;
-}
-
-.pg-btn {
+  }
+  
+  .pg-btn {
     padding: 6px 12px;
     font-size: 12px;
     border-radius: 6px;
     border: 1px solid #d1d5db;
-    background: white;
+    background: #ffffff;
     cursor: pointer;
     min-width: 32px;
-}
-
-.pg-btn:hover:not(:disabled) {
+  }
+  
+  .pg-btn:hover:not(:disabled) {
     background: #f3f4f6;
-}
-
-.pg-btn:disabled {
+  }
+  
+  .pg-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-.pg-btn.active {
+  }
+  
+  .pg-btn.active {
     background: #e5e7eb;
     border-color: #9ca3af;
     font-weight: 600;
-}
+  }
+  
+  /* responsive tweaks */
+  @media (max-width: 1024px) {
+    .sales-table {
+      font-size: 11px;
+      min-width: 1000px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .sales-table {
+      font-size: 10px;
+      min-width: 900px;
+    }
+  }
+  

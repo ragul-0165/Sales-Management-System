@@ -1,260 +1,153 @@
-const db = require("../db/connection");
-
+const Sale = require("../models/Sale");
 
 function splitCSV(value) {
   if (!value) return [];
   return String(value)
     .split(",")
-    .map((v) => v.trim())
+    .map(v => v.trim())
     .filter(Boolean);
 }
 
+function buildFilters(opts) {
+  const filter = {};
 
-function buildWhereClause(options) {
-  const whereParts = [];
-  const params = [];
-
-  const {
-    search,
-    regions,
-    genders,
-    categories,
-    tags,
-    paymentMethods,
-    ageMin,
-    ageMax,
-    dateFrom,
-    dateTo,
-  } = options;
-
-  // Customer Name + Phone Number
-  if (search) {
-    const term = `%${search.toLowerCase()}%`;
-    whereParts.push(
-      "(LOWER(customer_name) LIKE ? OR phone_number LIKE ?)"
-    );
-    params.push(term, term);
+  if (opts.search) {
+    const text = opts.search.trim();
+    filter.$or = [
+      { "Customer Name": { $regex: text, $options: "i" } },
+      { "Phone Number": { $regex: text, $options: "i" } },
+    ];
   }
 
-  // Customer Region
-  const regionList = splitCSV(regions);
+  const regionList = splitCSV(opts.regions);
   if (regionList.length > 0) {
-    const placeholders = regionList.map(() => "?").join(",");
-    whereParts.push(`customer_region IN (${placeholders})`);
-    params.push(...regionList);
+    filter["Customer Region"] = { $in: regionList };
   }
 
-  // Gender 
-  const genderList = splitCSV(genders);
+  const genderList = splitCSV(opts.genders);
   if (genderList.length > 0) {
-    const placeholders = genderList.map(() => "?").join(",");
-    whereParts.push(`gender IN (${placeholders})`);
-    params.push(...genderList);
+    filter["Gender"] = { $in: genderList };
   }
 
-  // Product Category
-  const categoryList = splitCSV(categories);
+  const categoryList = splitCSV(opts.categories);
   if (categoryList.length > 0) {
-    const placeholders = categoryList.map(() => "?").join(",");
-    whereParts.push(`product_category IN (${placeholders})`);
-    params.push(...categoryList);
+    filter["Product Category"] = { $in: categoryList };
   }
 
-  // Tags
-  const tagsList = splitCSV(tags);
+  const tagsList = splitCSV(opts.tags);
   if (tagsList.length > 0) {
-    const tagConds = tagsList.map(() => "LOWER(tags) LIKE ?");
-    whereParts.push(`(${tagConds.join(" OR ")})`);
-    tagsList.forEach((t) => params.push(`%${t.toLowerCase()}%`));
+    filter["Tags"] = { $regex: tagsList.join("|"), $options: "i" };
   }
 
-  // Payment Method
-  const paymentList = splitCSV(paymentMethods);
+  const paymentList = splitCSV(opts.paymentMethods);
   if (paymentList.length > 0) {
-    const placeholders = paymentList.map(() => "?").join(",");
-    whereParts.push(`payment_method IN (${placeholders})`);
-    params.push(...paymentList);
+    filter["Payment Method"] = { $in: paymentList };
   }
 
-  // Age Range 
-let min = null;
-let max = null;
+  const ageQuery = {};
+  if (opts.ageMin && !isNaN(Number(opts.ageMin))) {
+    ageQuery.$gte = Number(opts.ageMin);
+  }
+  if (opts.ageMax && !isNaN(Number(opts.ageMax))) {
+    ageQuery.$lte = Number(opts.ageMax);
+  }
+  if (Object.keys(ageQuery).length > 0) {
+    filter["Age"] = ageQuery;
+  }
 
-if (options.ageMin !== undefined && options.ageMin !== null && options.ageMin !== "") {
-  const n = Number(options.ageMin);
-  if (!Number.isNaN(n)) min = n;
+  const dateQuery = {};
+  if (opts.dateFrom) {
+    dateQuery.$gte = new Date(opts.dateFrom);
+  }
+  if (opts.dateTo) {
+    dateQuery.$lte = new Date(opts.dateTo);
+  }
+  if (Object.keys(dateQuery).length > 0) {
+    filter["Date"] = dateQuery;
+  }
+
+  return filter;
 }
 
-if (options.ageMax !== undefined && options.ageMax !== null && options.ageMax !== "") {
-  const n = Number(options.ageMax);
-  if (!Number.isNaN(n)) max = n;
-}
-
-
-if (!(min === null && max === null)) {
-  
-  if (min !== null) min = Math.max(min, 0);    
-  if (max !== null) max = Math.min(max, 120);  
-
-  // swap if reversed
-  if (min !== null && max !== null && min > max) {
-    const tmp = min;
-    min = max;
-    max = tmp;
-  }
-
-  // Compose SQL
-  if (min !== null) {
-    whereParts.push("age >= ?");
-    params.push(min);
-  }
-
-  if (max !== null) {
-    whereParts.push("age <= ?");
-    params.push(max);
-  }
-}
-
-
-  // Date Range
-  if (dateFrom) {
-    whereParts.push("date >= ?");
-    params.push(dateFrom);
-  }
-  if (dateTo) {
-    whereParts.push("date <= ?");
-    params.push(dateTo);
-  }
-
-  const whereClause =
-    whereParts.length > 0 ? "WHERE " + whereParts.join(" AND ") : "";
-
-  return { whereClause, params };
-}
-
-// sorting
-function normalizeSort(options) {
-  const { sort, order } = options;
-
-  const allowedSorts = {
-    date: "date",
-    quantity: "quantity",
-    customer_name: "customer_name",
+function normalizeSort(opts) {
+  const allowed = {
+    date: "Date",
+    quantity: "Quantity",
+    customer_name: "Customer Name",
   };
 
-  let sortColumn = allowedSorts[sort] || "customer_name";
-  let sortDirection = order && ["asc","desc"].includes(order.toLowerCase())
-    ? order.toUpperCase()
-    : "ASC";
+  const field = allowed[opts.sort] || "Customer Name";
 
-  return { sortColumn, sortDirection };
+  const direction = opts.order && ["asc", "desc"].includes(opts.order.toLowerCase())
+    ? opts.order.toLowerCase()
+    : "asc";
+
+  return { field, direction };
+}
+
+function mapDoc(doc) {
+  return {
+    id: doc._id,
+    transaction_id: doc["Transaction ID"],
+    date: doc["Date"],
+    customer_id: doc["Customer ID"],
+    customer_name: doc["Customer Name"],
+    phone_number: doc["Phone Number"],
+    gender: doc["Gender"],
+    age: doc["Age"],
+    customer_region: doc["Customer Region"],
+    customer_type: doc["Customer Type"],
+    product_id: doc["Product ID"],
+    product_name: doc["Product Name"],
+    brand: doc["Brand"],
+    product_category: doc["Product Category"],
+    tags: doc["Tags"],
+    quantity: doc["Quantity"],
+    price_per_unit: doc["Price per Unit"],
+    discount_percentage: doc["Discount Percentage"],
+    total_amount: doc["Total Amount"],
+    final_amount: doc["Final Amount"],
+    payment_method: doc["Payment Method"],
+    order_status: doc["Order Status"],
+    delivery_type: doc["Delivery Type"],
+    store_id: doc["Store ID"],
+    store_location: doc["Store Location"],
+    salesperson_id: doc["Salesperson ID"],
+    employee_name: doc["Employee Name"],
+  };
 }
 
 async function getSales(options) {
   const pageSize = 10;
-  const page = options.page ? Number(options.page) : 1;
-  const safePage = page > 0 ? page : 1;
-  const offset = (safePage - 1) * pageSize;
+  const page = Math.max(Number(options.page) || 1, 1);
+  const skip = (page - 1) * pageSize;
 
-  
+  const filter = buildFilters(options);
+  const { field, direction } = normalizeSort(options);
 
-  // copy for modification
-  const opts = { ...options };
+  const totalCount = await Sale.countDocuments(filter);
+  const totalPages = totalCount > 0
+    ? Math.ceil(totalCount / pageSize)
+    : 1;
 
-  // Convert empty strings to null
-  if (opts.ageMin === "" || opts.ageMin === undefined || opts.ageMin === null) {
-    opts.ageMin = null;
-  }
-  if (opts.ageMax === "" || opts.ageMax === undefined || opts.ageMax === null) {
-    opts.ageMax = null;
-  }
+  const docs = await Sale
+    .find(filter)
+    .sort({ [field]: direction === "asc" ? 1 : -1 })
+    .skip(skip)
+    .limit(pageSize)
+    .select("-__v")
+    .lean();
 
-  // Convert numeric strings to numbers
-  if (opts.ageMin !== null) {
-    const n = Number(opts.ageMin);
-    opts.ageMin = Number.isNaN(n) ? null : n;
-  }
-  if (opts.ageMax !== null) {
-    const n = Number(opts.ageMax);
-    opts.ageMax = Number.isNaN(n) ? null : n;
-  }
-
-  // Swap if reversed
-  if (opts.ageMin !== null && opts.ageMax !== null && opts.ageMin > opts.ageMax) {
-    const tmp = opts.ageMin;
-    opts.ageMin = opts.ageMax;
-    opts.ageMax = tmp;
-  }
-
-  
-  if (opts.ageMin !== null) opts.ageMin = Math.max(opts.ageMin, 0);
-  if (opts.ageMax !== null) opts.ageMax = Math.min(opts.ageMax, 120);
-
-  
-  const { whereClause, params } = buildWhereClause(opts);
-
-  
-  // Sorting
-  const { sortColumn, sortDirection } = normalizeSort(opts);
-
-  // Total count
-  const countStmt = db.prepare(
-    `SELECT COUNT(*) AS total FROM sales ${whereClause}`
-  );
-  const { total } = countStmt.get(...params);
-  const totalCount = total || 0;
-  const totalPages =
-    totalCount === 0 ? 1 : Math.ceil(totalCount / pageSize);
-
-  // Data query 
-
-  const dataStmt = db.prepare(
-    `
-    SELECT
-      transaction_id,
-      date,
-      customer_id,
-      customer_name,
-      phone_number,
-      gender,
-      age,
-      customer_region,
-      customer_type,
-      product_id,
-      product_name,
-      brand,
-      product_category,
-      tags,
-      quantity,
-      price_per_unit,
-      discount_percentage,
-      total_amount,
-      final_amount,
-      payment_method,
-      order_status,
-      delivery_type,
-      store_id,
-      store_location,
-      salesperson_id,
-      employee_name
-    FROM sales
-    ${whereClause}
-    ORDER BY ${sortColumn} ${sortDirection}
-    LIMIT ? OFFSET ?
-  `
-  );
-
-  const rows = dataStmt.all(...params, pageSize, offset);
+  const data = docs.map(mapDoc);
 
   return {
-    data: rows,
-    page: Number(safePage),
-    pageSize: Number(pageSize),
+    data,
+    page,
+    pageSize,
     totalCount,
     totalPages,
   };
 }
-
 
 module.exports = {
   getSales,

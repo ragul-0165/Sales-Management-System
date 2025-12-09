@@ -10,7 +10,9 @@
     padding: 10px 12px;
     padding-right: 18px;
     margin: 0 0 12px 0;
-    overflow-x: hidden;
+    overflow: visible;  /* IMPORTANT */
+  position: relative; 
+  z-index: 10;
 }
 
 .filter-bar select {
@@ -55,3 +57,49 @@
 .filter-bar select:last-of-type {
     margin-left: auto;
 }
+
+.multi-select {
+    position: relative;
+  }
+  
+  .select-btn {
+    border: 1px solid #dcdfe3;
+    background: #fff;
+    font-size: 13px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    min-width: 110px;
+    max-width: 150px;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  .select-btn:hover {
+    background: #f5f6f8;
+  }
+  
+  .dropdown {
+    position: absolute;
+    top: 36px;
+    left: 0;
+    z-index: 9999;
+    background: white;
+    border: 1px solid #e2e4e7;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-radius: 6px;
+    padding: 8px 10px;
+    min-width: 140px;
+  }
+  
+  .dropdown label {
+    font-size: 13px;
+    padding: 3px 0;
+    display: flex;
+    gap: 6px;
+    cursor: pointer;
+  }
+  
+  .dropdown input {
+    cursor: pointer;
+  }
+  
