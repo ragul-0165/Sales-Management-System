@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:4000/api/sales";
+const API_URL = "https://sales-management-system-g2rs.onrender.com/api/sales";
+
 
 export async function fetchSales(params = {}) {
   const query = new URLSearchParams(params).toString();
